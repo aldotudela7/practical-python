@@ -1,14 +1,18 @@
+#!/usr/bin/env python3
 # report.py
 #
 # Exercise 2.4
 from fileparse import parse_csv
+import stock
 
 def read_portfolio(filename):
     '''
     Reads a portfolio file into a list of dictionaries
     with keys: name, shares, and price.
     '''
-    portfolio = parse_csv(filename, select=['name','shares','price'], types=[str, int, float])
+    with open(filename) as lines:
+        pdict = parse_csv(lines, select=['name','shares','price'], types=[str, int, float])
+    portfolio = [ stock.Stock(d['name'], d['shares'], d['price']) for d in pdict]
     return portfolio
 
 def read_prices(filename):
@@ -16,7 +20,8 @@ def read_prices(filename):
     Reads csv file of prices without header and stores 
     them in a dictionary.
     '''
-    prices = dict(parse_csv(filename, has_headers=False))
+    with open(filename) as lines:
+        prices = dict(parse_csv(lines, has_headers=False))
     return prices
 
 def make_report(stocks, prices):
@@ -26,11 +31,11 @@ def make_report(stocks, prices):
     current_price, and change.
     '''
     report = []
-    for stock in stocks:
-        name = stock['name']
-        shares = int(stock['shares'])
-        price = float(stock['price'])
-        current_price = float(prices.get(stock['name']))
+    for s in stocks:
+        name = s.name
+        shares = s.shares
+        price = s.price
+        current_price = float(prices.get(s.name))
         change = current_price - price
         row = (name, shares, current_price, change)
         report.append(row)
@@ -58,4 +63,13 @@ def portfolio_report(portfolio_filename, prices_filename):
     report = make_report(portfolio,prices)
     print_report(report)
 
-portfolio_report('Data/portfolio2.csv', 'Data/prices.csv')
+def main(argv):
+    if len(argv) == 3:
+        filenames = [argv[1], argv[2]]
+    else:
+        filenames = ['Data/portfolio.csv', 'Data/prices.csv']
+    portfolio_report(filenames[0], filenames[1])
+
+if __name__ == '__main__':
+    import sys
+    main(sys.argv)
