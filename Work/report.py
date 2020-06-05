@@ -4,6 +4,7 @@
 # Exercise 2.4
 from fileparse import parse_csv
 import stock
+import tableformat
 
 def read_portfolio(filename):
     '''
@@ -41,34 +42,43 @@ def make_report(stocks, prices):
         report.append(row)
     return report
 
-def print_report(report):
+def print_report(reportdata, formatter):
     '''
     Reads the output of make_report and prints a table
     of results to console.
     '''
-    headers = ('Name','Shares','Price','Change')
-    line = '-----------'
-    print('%10s %10s %10s %10s' % headers)
-    print('%10s %10s %10s %10s' % (line,line,line,line))
-    for i in report:
-        print('%10s %10d %10.2f %10.2f' % i)
+    formatter.headings(['Name','Shares','Price','Change'])
+    for name, shares, price, change in reportdata:
+        rowdata = [name, str(shares), f'{price:0.2f}', f'{change:0.2f}']
+        formatter.row(rowdata)
 
-def portfolio_report(portfolio_filename, prices_filename):
+    # headers = ('Name','Shares','Price','Change')
+    # line = '-----------'
+    # print('%10s %10s %10s %10s' % headers)
+    # print('%10s %10s %10s %10s' % (line,line,line,line))
+    # for i in report:
+    #     print('%10s %10d %10.2f %10.2f' % i)
+
+def portfolio_report(portfolio_filename, prices_filename, fmt='txt'):
     '''
     Runs the functions in this script in sequence to get
     a summary of the portfolio and prices given.
     '''
+    # Read data files
     portfolio = read_portfolio(portfolio_filename)
     prices = read_prices(prices_filename)
+    # Create report
     report = make_report(portfolio,prices)
-    print_report(report)
+    # Print report
+    formatter = tableformat.create_formatter(fmt)
+    print_report(report, formatter)
 
 def main(argv):
-    if len(argv) == 3:
-        filenames = [argv[1], argv[2]]
+    if len(argv) == 4:
+        filenames = [argv[1], argv[2], argv[3]]
     else:
-        filenames = ['Data/portfolio.csv', 'Data/prices.csv']
-    portfolio_report(filenames[0], filenames[1])
+        filenames = ['Data/portfolio.csv', 'Data/prices.csv', 'txt']
+    portfolio_report(filenames[0], filenames[1], filenames[2])
 
 if __name__ == '__main__':
     import sys
