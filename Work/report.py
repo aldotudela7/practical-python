@@ -3,18 +3,19 @@
 #
 # Exercise 2.4
 from fileparse import parse_csv
-import stock
+from stock import Stock
 import tableformat
+from portfolio import Portfolio
 
 def read_portfolio(filename):
     '''
     Reads a portfolio file into a list of dictionaries
     with keys: name, shares, and price.
     '''
-    with open(filename) as lines:
-        pdict = parse_csv(lines, select=['name','shares','price'], types=[str, int, float])
-    portfolio = [ stock.Stock(d['name'], d['shares'], d['price']) for d in pdict]
-    return portfolio
+    with open(filename) as file:
+        pdict = parse_csv(file, select=['name','shares','price'], types=[str, int, float])
+    portfolio = [ Stock(d['name'], d['shares'], d['price']) for d in pdict]
+    return Portfolio(portfolio)
 
 def read_prices(filename):
     '''
@@ -51,13 +52,6 @@ def print_report(reportdata, formatter):
     for name, shares, price, change in reportdata:
         rowdata = [name, str(shares), f'{price:0.2f}', f'{change:0.2f}']
         formatter.row(rowdata)
-
-    # headers = ('Name','Shares','Price','Change')
-    # line = '-----------'
-    # print('%10s %10s %10s %10s' % headers)
-    # print('%10s %10s %10s %10s' % (line,line,line,line))
-    # for i in report:
-    #     print('%10s %10d %10.2f %10.2f' % i)
 
 def portfolio_report(portfolio_filename, prices_filename, fmt='txt'):
     '''

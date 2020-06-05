@@ -1,22 +1,32 @@
-# Exercise 1.27
-import report
+#!/usr/bin/env python3
+# report.py
+#
+# Exercise 6.2
 
-def portfolio_cost(filename):
-    '''
-    Calculates the total cost of a portfolio
-    '''
-    portfolio = report.read_portfolio(filename)
-    total = sum([s.shares*s.price for s in portfolio])
-    return total
+class Portfolio:
 
-def main(argv):
-    if len(argv) == 2:
-        filename = argv[1]
-    else:
-        filename = 'Data/portfolio.csv'
-    cost = portfolio_cost(filename)
-    print('Total cost:', cost)
+    def __init__(self, holdings):
+        self._holdings = holdings
+    
+    def __iter__(self):
+        return self._holdings.__iter__()
+    
+    def __len__(self):
+        return len(self._holdings)
+    
+    def __getitem__(self, index):
+        return self._holdings[index]
 
-if __name__ == '__main__':
-    import sys
-    main(sys.argv)
+    def __contains__(self, name):
+        return any([s.name == name for s in self._holdings])
+
+    @property
+    def total_cost(self):
+        return sum([s.cost for s in self._holdings])
+    
+    def tabulate_shares(self):
+        from collections import Counter
+        total_shares = Counter()
+        for s in self._holdings:
+            total_shares[s.name] += s.shares
+        return total_shares
